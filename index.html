@@ -9,37 +9,46 @@
     <script type="text/babel">
 
     function App (){
-        const [minutes,setMinutes]=React.useState();
+        const [amount,setAmount]=React.useState();
+        const [flipped,setFlipped] = React.useState(false);
         const onChange = (event) =>{
-           setMinutes(event.target.value);
+            setAmount(event.target.value);
         };
-        const reset =()=>setMinutes(0);
-        return (
+        const reset =()=>setAmount(0);
+        const onFlip = () => {
+            reset();
+            setFlipped(current => !current);
+        };
+            return (
         <div>
         <h1>Super Converter</h1>
         <div>
         <label htmlFor="minutes">Minutes</label>
         <input 
-        value={minutes} 
+        value={flipped ? amount*60 : amount} 
         id="minutes" 
         placeholder="Minutes" 
         type="number"
         onChange={onChange} //onChange => input에서 리스닝하는 데이터를 업데이트
+        disabled={flipped===true} // disalbed={filpped} 으로 작성 가능
         />
         </div>
 
-        <h4>You wnat to convert {minutes}</h4>
+        <h4>You wnat to convert {amount}</h4>
 
         <div>
         <label htmlFor="hours">Hours</label>
         <input 
-        value={minutes/60}
+        value={flipped ? amount : amount/60}
         id="hours" 
         placeholder="Hours" 
         type="number"
+        onChange={onChange}
+        disabled={flipped===false} // disalbed={!filpped} 으로 작성 가능
         />
         </div>
         <button onClick={reset}>Reset</button>
+        <button onClick={onFlip}>Flip</button>
         </div>
         );
     }

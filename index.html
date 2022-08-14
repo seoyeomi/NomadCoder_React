@@ -29,7 +29,7 @@
         placeholder="Minutes" 
         type="number"
         onChange={onChange} //onChange => input에서 리스닝하는 데이터를 업데이트
-        disabled={inverted===true} // disalbed={filpped} 으로 작성 가능
+        disabled={inverted===true} // disalbed={inverted} 으로 작성 가능
         />
         </div>
 
@@ -41,7 +41,7 @@
         placeholder="Hours" 
         type="number"
         onChange={onChange}
-        disabled={inverted===false} // disalbed={!filpped} 으로 작성 가능
+        disabled={inverted===false} // disalbed={!inverted} 으로 작성 가능
         />
         </div>
 
@@ -93,6 +93,50 @@
         </div>
         );
     }
+    function CmToInches(){
+        const [cm,setCm] =React.useState();
+        const [inverted,setInverted] =React.useState(false);
+        const onChange =(event)=>{
+            setCm(event.target.value);
+        }
+        const onInvert=()=>{
+            reset();
+            setInverted(current=>!current)
+        }
+        const reset=()=>setCm(0);
+        return(
+            <div>
+            <div>
+            <label htmlFor="cm">Cm</label>
+                <input
+                value={inverted ? cm*2.54 : cm}
+                id="cm"
+                placeholder="Cm"
+                type="number"
+                onChange={onChange}
+                disabled={inverted}
+                >
+                </input>      
+            </div>
+
+            <div>
+            <label htmlFor="inches">Inch</label>
+                <input
+                value={inverted ? cm : cm/2.54}
+                id="inches"
+                placeholder="Inch"
+                type="number"
+                onChange={onChange}
+                disabled={!inverted}
+                >
+                </input>    
+            </div>
+
+            <button onClick={reset}>reset</button>
+            <button onClick={onInvert}>{inverted ? "Turn back" : "Invert"}</button>
+            </div>
+        );
+    }
     function App (){
         const [index,setIndex] = React.useState("xx");
         const onSelect = (event) => {
@@ -105,12 +149,13 @@
                 <option value="xx">Select your units</option>
                 <option value="0">Minutes & Hours</option>
                 <option value="1">Km & Miles</option>    
+                <option value="2">Cm & Inches</option>    
             </select>
             <hr />
             {index === "xx" ?  "Please select yout units": null }
             {index === "0" ? <MinutesToHours /> : null }
             {index === "1" ? <KmToMiles /> : null }
-
+            {index === "2" ? <CmToInches /> : null }
             </div>
         );
     }

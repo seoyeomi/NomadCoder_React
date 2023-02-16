@@ -1,6 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom"; // /client
-import App from "./App";
+import App5 from "./App5";
 
 // const root = ReactDOM.createRoot(document.getElementById('root'));
 // root.render(
@@ -11,7 +11,7 @@ import App from "./App";
 
 ReactDOM.render(
   // <React.StrictMode>
-  <App />,
+  <App5 />,
   // </React.StrictMode>,
   document.getElementById("root")
 );

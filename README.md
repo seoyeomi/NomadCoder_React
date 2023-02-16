@@ -524,3 +524,98 @@ state는 직접적으로 수정이 불가능 하므로(ex. toDo="") 함수를 �
 어플리케이션이 시작될 때는 비어있는 배열을 가진다.
 첫 번째 toDo 입력시 비어있는 currentArray를 받아오고 새로운 toDos가 input을 통해 작성한 toDo와 아무것도 들어있지 않은 빈 배열의 element가 더해진다.  
 1st toDo에 hello라 적고 submit한 후 byebye라 적고 submit -> currentArray에는 Hello가 이미 존재하고, toDo는 byebye가 된다. 그리고 currentArray는 hello와 byebye를 가지고 있는 배열이 된다.
+
+### 7.1 To Do List part Two
+
+map(): js함수. array 안의 요소들을 바꿀 수 있다.
+이때 () 안에 함수를 넣을 수 있는데 배열의 모든 item에 대해 실행된다. 즉, 배열에 6개의 item이 있다면 6번 함수가 실행된다.
+그리고 그 함수로부터 return한 값은 새로운 배열에 들어가게 한다.
+['a','b','c','d','e','f'].map( ()=> ":)" ) -> [':)',':)',':)',':)',':)',':)']인 새 배열을 만들어준다.  
+_다만, 기존의 배열에 접근할 수 없게된다._
+But, amp은 함수의 첫 번째 argument로 현재의 item을 가지고 올 수 있다.
+map(item)->item 이나 원하는 어떤 변수명을 넣으면 item 그 자체를 리턴하는 것도 가능하다.  
+map( (item)=>item.toUpperCase() ) 와 같이 작성하면 item이 대문자로 바뀐 새로운 배열을 만들어준다.
+
+리액트는 기본적으로 list에 있는 모든 item을 인식하므로 'key'를 넣어 고유하게 만들어주어햐 한다. map의 첫 번째 argument는 값이고, 두 번째는 index 즉 숫자를 의미한다.
+{toDos.map((item.index)=>{item})} -> {{item},{item},{item}}
+
+### 7.2 Coin Tracker
+
+useState를 이용하여 coin tracker을 만드는데, loading중일 때와 그렇지 않은 경우로 나누어 실행결과를 다르게 하였다.  
+useEffect에서 fetch를 통해 coin tracker의 사이트를 가져오고(F12-네트워크 에서 확인 가능), 그 안에서 key값과 coin의 name, symbol, USD price까지 가져왔다.
+
+1. map함수와 \<ul>,\<li> 태그를 통해서 얻어온 결과를 보여주는 방법 구현
+2. map함수와 \<select>,\<option> 태그를 통해 얻어온 결과를 보여주는 방법 구현  
+   -> 위 두 가지 방법으로 간단한 coin tracker를 만들어보았다.
+
+### 7.3 Movie App part One (페이지 전환 방법 배우기)
+
+```C
+import { useState, useEffect } from "react";
+
+function App5() {
+  const [loading, setLoading] = useState(true);
+  const [movies, setMovies] = useState([]);
+  useEffect(() => {
+    fetch(
+      `https://yts.mx/api/v2/list_movies.json?minimum_rating=9&sort_by=year`
+    )
+      .then((response) => response.json())
+      .then((json) => {
+        setMovies(json.data.movies);
+        setLoading(false);
+      });
+  }, []);
+  return <div>{loading ? <h1>Loading ... </h1> : null}</div>;
+}
+
+export default App5;
+```
+
+-> then 대신 async-await을 사용하면 아래와 같다.
+
+```C
+import { useState, useEffect } from "react";
+
+function App5() {
+  const [loading, setLoading] = useState(true);
+  const [movies, setMovies] = useState([]);
+  const getMovies = async() => {
+    const response = await fetch(
+      `https://yts.mx/api/v2/list_movies.json?minimum_rating=9&sort_by=year`
+    );
+      const json = await response.json();
+        setMovies(json.data.movies);
+        setLoading(false);
+  };
+  useEffect(() => {
+    getMovies();
+  }, []);
+  return <div>{loading ? <h1>Loading ... </h1> : null}</div>;
+}
+
+export default App5;
+```
+
+이를 한 번 더 await으로 묶어주면,
+
+```C
+ const getMovies = async () => {
+    const json = await (
+      await fetch(
+        `https://yts.mx/api/v2/list_movies.json?minimum_rating=9&sort_by=year`
+      )
+    ).json();
+
+    setMovies(json.data.movies);
+    setLoading(false);
+  };
+```
+
+와 같이 작성이 가능하다.
+
+\*리스트에 있는 내용을 보여주기 위한 방법 : map함수 사용  
+(오래된 array를 가져가서 그 array의 각각의 item을 변형시킨다. 변형돼서 return 된 것들을 새로운 array에 넣어준다.)
+예시) [1,2,3,4,5,6].map(x=>x\*2) 라고 입력시 [2,4,6,8,10,12]를 return한다.
+
+또한 map을 사용할 때마다 우리는 key를 element에 주어야 한다. (key값이 존재하지 않는 경우 설정한 Argument값을 key값으로 써주어도 된다. 단, 그 argument가 고유한 값일 경우에만 가능)

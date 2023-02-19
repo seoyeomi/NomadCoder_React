@@ -593,8 +593,8 @@ function App5() {
   }, []);
   return <div>{loading ? <h1>Loading ... </h1> : null}</div>;
 }
-
 export default App5;
+
 ```
 
 이를 한 번 더 await으로 묶어주면,
@@ -619,3 +619,123 @@ export default App5;
 예시) [1,2,3,4,5,6].map(x=>x\*2) 라고 입력시 [2,4,6,8,10,12]를 return한다.
 
 또한 map을 사용할 때마다 우리는 key를 element에 주어야 한다. (key값이 존재하지 않는 경우 설정한 Argument값을 key값으로 써주어도 된다. 단, 그 argument가 고유한 값일 경우에만 가능)
+
+### 7.4 Movie App part Two
+
+Movie.js 파일을 새로 생성하여 기존의
+
+```c
+<div key={movie.id}>
+      <h2>{movie.title}</h2>
+      <img src={movie.medium_cover_image}/>
+      <p>{movie.summary}</p>
+      <ul>
+        <li>
+          <b>year: </b>
+          {movie.year}
+        </li>
+        {genres.map((g) => (
+          <li key={g}>{g}</li>
+        ))}
+      </ul>
+    </div>
+```
+
+부분을 Movie.js에 가져오고, div 태그 안의 key값을 삭제하였다.  
+이 경우 movie.~에서 movie가 정의되지 않았기 때문에 오류가 발생한다. (+ medium_cover_image, title, summary, genres,year또한 정의되지 않음)
+
+따라서 props obeject를 열어 Movie component가 해당 정보들을(image,title...) parent component로부터 받아오게끔 작성한다.
+
+이후 App5.js에 movie를 render해준다.
+
+```c
+{movies.map((movie) => (
+            <Movie
+              coverImg={movie.medium_cover_image}
+              title={movie.title}
+              summary={movie.summary}
+              genres={movie.genres}
+              year={movie.year}
+            />
+          ))}
+```
+
+-> movie component로 property를 보내기 위해 coverImg={movie.medium_cover_image} ...와 같이 작성해준다.
+
+**모든 이미지 element들은 alt 속성을 가지기 때문에 작성을 따로 해주어야 한다.**
+
+**key는 React.js 에서만 , map안에서 component들을 render할 때 사용한다**
+
+---
+
+[Router] - home route는 모든 영화를 보여주고, movie route는 영화 하나만을 보여준다. 즉 이렇듯 route별로 생각해야한다.
+
+이번 chapter 7.4에서는 routes와 components 폴더를 새로 생성하고, Movie.js를 components로 이동한 다음 Home.js 파일을 routes폴더에 생성한다.  
+이후 기존의 App5.js의 내용을 Home.js로 가져오고(export default Home; 작성), App5.js에는 `return null;`을 해준다.
+-> **그렇다면 기존의 App5.js는 어떤 역할을 하는가?**  
+: **router를 render한다.**
+(router는 URL을 보고 있는 component고(home.js), 우리가 만약 URL을 변경하게 되면 router은 Detail component를 보여준다-> 새로운 component를 render한다.)
+
+### 7.5 React Router
+
+- Switch가 하는 일: Route 찾고 컴포넌트 렌더링  
+  _이때 Route는 URL을 의미_
+- ***
+
+[isuue] : import를 했을 때,
+`Module not found: Error: You attempted to import ../routes/Detail which falls outside of the project src/ directory. Relative imports outside of src/ are not supported.
+You can either move it inside src/, or add a symlink to it from project's node_modules/.` 와 같은 에러가 발생하였다.  
+이 에러는 경로가 다르기 때문에 발생하는 문제였고, src 폴더 외부에다 잘못 생성한 routes, components 폴더를 내부로 옮기니 해결되었다.
+
+---
+
+- link 컴포넌트 : 화면 전체를 재실행 하지 않고, 즉 브라우저 새로고침 없이도 유저를 다른 페이지로 이동시켜준다.
+
+[복습]
+
+0. App컴포넌트에 만들었던 모든 logic을 별개의 장소(Home)로 옮겼다.
+1. react-router-dom을 import함으로써 Router,Switch,Route 등의 컴포넌트들을 사용한다.
+2. 처음에 Router 컴포넌트를 통해 렌더링해주고, 그 안에 들어가는 내용은 유저가 있는 url에 따라 유저에게 보여주고자 하는 내용이다.
+3. switch 컴포넌트는 한 번에 하나의 Route만 렌더링 하기 위해 사용하였다.
+
+-> url을 바라보고 있다는 말을 제대로 이해하지 못했으나, url 변경에 따라 컴포넌트들이 작성한대로 실행하는 것(유저에게 보여주고자 하는 것)을 알고 점차 이해함.
+
+### 7.6 parameters
+
+props는 object일 뿐이고, 우리는 그것을 열어서 작성해놓은 item을 꺼내어 쓴다.  
+이번 강의에서는 url을 변경함으로써 유저에게 보이는 페이지를 다르게 로딩하는 방법에 대해서 배웠다.
+
+Movie.js에서 `` <Link to={`/movie/${id}`}><{title}></Link> `` 과 같이 작성해준 부분을 살펴보자.  
+url에서 movie 이후에 id가 들어가게 될 것이다.  
+이 url에 오는 id 값을 알아내기 위해 _url에 있는 값을 반환해주는 함수로서 react router에 존재하는 [useParam]이라는 함수를 불러와야 한다._
+
+```C
+import { useParams } from "react-router-dom";
+
+  const { id } = useParams();
+  const getMovie = async () => {
+    const json = await (
+      await fetch(`https://yts.mx/api/v2/movie_details.json?movie_id=${id}`
+      )
+    ).json();
+
+    console.log(json);
+  };
+
+  useEffect(() => {
+    getMovie();
+  }, []);
+```
+
+다음과 같이 작성하면, 해당 id에 속하는 url을 가져와 이동하게 된다.
+
+이후 코드챌린지과정을 통해 Detail.js에서 해당 영화제목을 클릭하면, 해당 url로 이동을 하게 되고 정보를 가져오기 전까지는 loading... 문구가 화면에 보여지며 정보를 가져온 후에는 유저화면에 해당 영화와 관련된 세부 정보들을 보여준다.
+
+### 7.7 Publishing
+
+1. npm i gh-pages
+2. package.json에서 디버그 부분에 deploy,predeploy추가
+3. package.json에서 맨 아래 부분에 "hompage"~ 추가하여 깃허브주소와 연결
+4. npm run deploy (build폴더가 생김)
+
+-> 이후 무엇인가를 수정하고 업데이트를 하고 싶으면, `npm run deploy`만 해주면 된다. (자동으로 프로젝트가 build되고, 폴더가 자동으로 Github pages에 push된다)

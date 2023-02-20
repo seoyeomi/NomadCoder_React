@@ -3,6 +3,16 @@ import { useState, useEffect } from "react";
 function App4() {
   const [loading, setLoading] = useState(true);
   const [coins, setCoins] = useState([]);
+  const [usd, setUsd] = useState([]);
+
+  const onChange = (event) => {
+    setUsd(event.target.value);
+  };
+
+  const reset = () => {
+    setUsd(0);
+  };
+
   useEffect(() => {
     fetch("https://api.coinpaprika.com/v1/tickers")
       .then((response) => response.json())
@@ -17,7 +27,7 @@ function App4() {
       {loading ? (
         <strong>Loading...</strong>
       ) : (
-        <select>
+        <select onChange={onChange}>
           {coins.map((coin) => (
             <option key={coin.id}>
               {coin.name} {coin.symbol} : ${coin.quotes.USD.price}
@@ -25,6 +35,32 @@ function App4() {
           ))}
         </select>
       )}
+
+      <div>
+        USD:
+        <input
+          type="number"
+          placeholder="Write your $USD"
+          value={usd}
+          onChange={onChange}
+        />
+      </div>
+
+      {loading ? (
+        <strong>Loading...</strong>
+      ) : (
+        <select onChange={onChange}>
+          {coins.map((coin) => (
+            <option key={coin.id}>
+              {coin.name} {coin.symbol} : ${usd / coin.quotes.USD.price}
+            </option>
+          ))}
+        </select>
+      )}
+
+      <div>
+        <button onClick={reset}>Reset</button>
+      </div>
     </div>
   );
 }
